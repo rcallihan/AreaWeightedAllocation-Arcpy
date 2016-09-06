@@ -7,7 +7,7 @@
 # Import parameters
 import arcpy, os
 
-# Script arguments
+# Inputs from TBX/User
 TargetDataset = arcpy.GetParameterAsText(0)
 TargetNameField = arcpy.GetParameterAsText(1)
 TargetValueField = arcpy.GetParameterAsText(2)
@@ -15,12 +15,6 @@ SourceDataset = arcpy.GetParameterAsText(3)
 SourceNameField = arcpy.GetParameterAsText(4)
 OutputType = arcpy.GetParameterAsText(5)
 OutputDir = arcpy.GetParameterAsText(6)
-
-##OutputDir = 
-##AreaToProportion = "X:\F1147.01 Wallowa Land Trust\Deliverables\GIS_Data\ConsPlans_PriorityParcels.gdb\Parcels_Private_PriorityAnalysis"
-##BoundariesToDistribute = "X:\F1147.01 Wallowa Land Trust\Deliverables\GIS_Data\ConsPlan_GISAnalysisInputData.gdb\PLN_OR_HighValueForest_2007_DSLV"
-##BoundaryNameField = "Forestland"
-##BGNameField = "GIS_ID"
 
 #workspace
 arcpy.env.workspace = "in_memory"
