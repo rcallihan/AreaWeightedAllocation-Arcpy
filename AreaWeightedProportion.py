@@ -72,20 +72,20 @@ arcpy.AddMessage("Making Selection")
 print "Making Selection"
 arcpy.Select_analysis(inMemoryUnionedFC, inMemoryUnionedCleanFC, TargetSelection)
 
-# Select ony areas that intersected with Source.
-arcpy.AddMessage("Making Selection")
-print "Making Selection"
-arcpy.Select_analysis(inMemoryUnionedCleanFC, inMemoryUnionedCleanAgainFC, SourceSelection)
+# Select ony areas that intersected with Source. (Removed)
+# arcpy.AddMessage("Making Selection")
+# print "Making Selection"
+# arcpy.Select_analysis(inMemoryUnionedFC, inMemoryUnionedCleanAgainFC, SourceSelection)
 
 # Group By Summary - Summarize on Source and on Target
 arcpy.AddMessage("Summary Statistics")
 print "Summary Statistics"
 if not TargetValueField:
 	# Output table with proportion (no AWP values calculated, just proportions)
-	arcpy.Statistics_analysis(inMemoryUnionedCleanAgainFC,inMemoryStatsTable, [["Target_Area","MEAN"],["AreaInSource","SUM"]],[SourceNameField,TargetNameField])
+	arcpy.Statistics_analysis(inMemoryUnionedCleanFC,inMemoryStatsTable, [["Target_Area","MEAN"],["AreaInSource","SUM"]],[SourceNameField,TargetNameField])
 else:
 	# if a target value was defined by a user, pass it through the Statistic_analysis
-	arcpy.Statistics_analysis(inMemoryUnionedCleanAgainFC,inMemoryStatsTable, [["Target_Area","MEAN"],["AreaInSource","SUM"],[TargetValueField, "MEAN"]],[SourceNameField,TargetNameField])
+	arcpy.Statistics_analysis(inMemoryUnionedCleanFC,inMemoryStatsTable, [["Target_Area","MEAN"],["AreaInSource","SUM"],[TargetValueField, "MEAN"]],[SourceNameField,TargetNameField])
 
 # Add field for proportion and calculate
 arcpy.AddMessage("Calculating Proportions")
@@ -107,16 +107,18 @@ def outputProportions(intable, outtype, outpath, outfilename, outfullpath):
 # If a target field exists, calculate the area weighted porportion for that value. 
 if not TargetValueField:
 	# Output table with proportion (no AWP values calculated, just proportions)
+	arcpy.AddMessage("Exporting proportions table.")
 	outputProportions(inMemoryStatsTable, OutputType,OutPath, OutFileName, OutFileFullPath)
 
-else:	
+else:
+	# Multiply the value field from the target dataset by the proportion field. 
+	Arcpy.AddMessage("Calculating area weighted proportion values.")
 	arcpy.AddField_management(inMemoryStatsTable, "AWP_Value", "DOUBLE")
 	AWPcalc = "!" + ValueField + "! * !" + ProportionField + "!"
-	
-	# Multiply the value field from the target dataset by the proportion field. 
 	arcpy.CalculateField_management(inMemoryStatsTable, "AWP_Value" , AWPcalc, "PYTHON")
 
 	#output intermediate proportion file
+	arcpy.AddMessage("Exporting proportions table.")
 	outputProportions(inMemoryStatsTable, OutputType,OutPath, OutFileName, OutFileFullPath)
 	
 	# Summarize on Source ID
@@ -125,6 +127,7 @@ else:
 	arcpy.AlterField_management(inMemoryStatsStatsTable, "Frequency", "Num_Features")
 
 	# Output Table with calculated AWP values
+	arcpy.AddMessage("Exporting calculated proportions table.")
 	outputProportions(inMemoryStatsStatsTable, OutputType,OutPath, OutFileName_Calculated, OutFileFullPath_Calculated)
 
 #delete all intermediate files
